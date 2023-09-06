@@ -1,13 +1,21 @@
 {
   "dependencies": {
-    "com.alven.fishnet.unitytransport": {
-      "version": "https://github.com/ooonush/FishyUnityTransport.git?path=Assets/FishNet/Plugins/FishyUnityTransport",
+    "com.etdofresh.fishyeos": {
+      "version": "https://github.com/ETdoFresh/FishyEOS.git?path=/FishNet/Plugins/FishyEOS",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "5de84ddc27221316676f40b8d261b334c9e1bf5c"
+    },
+    "com.playeveryware.eos": {
+      "version": "https://github.com/PlayEveryWare/eos_plugin_for_unity_upm.git",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "com.unity.transport": "1.3.1"
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.editorcoroutines": "1.0.0"
       },
-      "hash": "931c62b3d001be1da87fe8dd4213eeb9b5626dea"
+      "hash": "6d3118adfa85cf63c625968f0040f2816b490a4a"
     },
     "com.unity.ai.navigation": {
       "version": "1.1.4",
@@ -19,7 +27,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
-      "version": "1.8.7",
+      "version": "1.8.8",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -183,7 +191,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.authentication": {
-      "version": "2.7.1",
+      "version": "2.7.2",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -195,30 +203,13 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.core": {
-      "version": "1.10.1",
+      "version": "1.11.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.modules.unitywebrequest": "1.0.0",
         "com.unity.nuget.newtonsoft-json": "3.2.1",
         "com.unity.modules.androidjni": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.services.lobby": {
-      "version": "1.1.0",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.services.core": "1.8.2",
-        "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.modules.unitywebrequestassetbundle": "1.0.0",
-        "com.unity.modules.unitywebrequestaudio": "1.0.0",
-        "com.unity.modules.unitywebrequesttexture": "1.0.0",
-        "com.unity.modules.unitywebrequestwww": "1.0.0",
-        "com.unity.nuget.newtonsoft-json": "3.0.2",
-        "com.unity.services.authentication": "2.1.1",
-        "com.unity.services.wire": "1.1.8"
       },
       "url": "https://packages.unity.com"
     },
@@ -250,17 +241,6 @@
         "com.unity.modules.unitywebrequestwww": "1.0.0",
         "com.unity.nuget.newtonsoft-json": "3.0.2",
         "com.unity.transport": "1.3.0"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.services.wire": {
-      "version": "1.2.0",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.services.core": "1.10.1",
-        "com.unity.nuget.newtonsoft-json": "3.2.1",
-        "com.unity.services.authentication": "2.6.1"
       },
       "url": "https://packages.unity.com"
     },
@@ -343,7 +323,7 @@
       }
     },
     "com.unity.visualscripting": {
-      "version": "1.8.0",
+      "version": "1.9.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
