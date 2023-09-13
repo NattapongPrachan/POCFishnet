@@ -41,7 +41,6 @@ public abstract class ObjectBehaviour : SerializedMonoBehaviour, ILokiListener,I
         } 
     public virtual void AddListener()
     {
-        Debug.Log(this.name + "AddListener");
         LokiBehaviour.OnObjectBehaviourAdded?.Subscribe(_ => OnObjectBehaviourAdded(_));
         LokiBehaviour.OnObjectBehaviourRemoved?.Subscribe(_ => OnObjectBehaviourRemoved(_));
         // LokiBehaviour.OnNetworkObjectBehaviourAdded?.Subscribe(_ => OnNetworkObjectBehaviourAdded(_));

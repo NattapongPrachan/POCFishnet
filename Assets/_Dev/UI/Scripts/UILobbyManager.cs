@@ -5,14 +5,13 @@ using UniRx;
 using PlayEveryWare.EpicOnlineServices;
 using Epic.OnlineServices.Connect;
 
-public class UILobbyManager : MonoBehaviour ,IEOSOnAuthLogout, IEOSOnConnectLogin
+public class UILobbyManager : MonoInstance<UILobbyManager> ,IEOSOnAuthLogout, IEOSOnConnectLogin
 {
     [SerializeField]GameObject _uiLobbies;
-    private void Awake()
+    [SerializeField]Canvas _lobbyCanvas;
+    public void CloseLobby()
     {
-        // FEOSLobbies.OnLobbyJoined.Subscribe(_ =>{
-        //     _uiLobby.gameObject.SetActive(true);
-        // }).AddTo(this);
+        _lobbyCanvas.enabled = false;
     }
 
     public void OnAuthLogout(Epic.OnlineServices.Auth.LogoutCallbackInfo logoutCallbackInfo)

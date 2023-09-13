@@ -26093,7 +26093,7 @@ PrefabInstance:
     - target: {fileID: 7443408887813606051, guid: 0b650fca685f2eb41a86538aa883e4c1,
         type: 3}
       propertyPath: m_Name
-      value: NetworkManager (1)
+      value: NetworkManager
       objectReference: {fileID: 0}
     - target: {fileID: 7443408887813606051, guid: 0b650fca685f2eb41a86538aa883e4c1,
         type: 3}
@@ -48093,6 +48093,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiLobbies: {fileID: 1282888946}
+  _lobbyCanvas: {fileID: 347942259}
 --- !u!4 &1737791183 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4289126748202998, guid: 9672218ecb324c240ae58e7a390701f2,
@@ -53723,8 +53724,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UIRoom, Assembly-CSharp
+      - m_Target: {fileID: 1736404439}
+        m_TargetAssemblyTypeName: UILobby, Assembly-CSharp
         m_MethodName: StartGame
         m_Mode: 1
         m_Arguments:

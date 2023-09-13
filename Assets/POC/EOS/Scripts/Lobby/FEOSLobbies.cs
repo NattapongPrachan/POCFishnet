@@ -44,21 +44,26 @@ public class FEOSLobbies : MonoBehaviour, IEOSOnAuthLogin, IEOSOnAuthLogout, IEO
         lobby.AllowInvites = true;
         lobby.LobbyPermissionLevel = LobbyPermissionLevel.Publicadvertised;
         lobby.DisableHostMigration = false;
-
-        var lobbyDetails = new LobbyDetails();
-        lobby.InitFromLobbyDetails(lobbyDetails);
-        Debug.Log("attribute "+lobby.Attributes.Count);
         var attribute = new LobbyAttribute();
         attribute.Key = "Bavaria";
         attribute.AsString = "Dielser";
         attribute.ValueType = AttributeType.String;
+
         var bucketAttribute = new LobbyAttribute{
             Key = "bucketid",
             AsString = lobby.BucketId,
             ValueType = AttributeType.String
         };
+
+        var gameStartAttribute = new LobbyAttribute{
+            Key = "gameStart",
+            AsBool = false,
+            ValueType = AttributeType.Boolean
+        };
+
         lobby.Attributes.Add(attribute);
         lobby.Attributes.Add(bucketAttribute);
+        lobby.Attributes.Add(gameStartAttribute);
 
         var createLobbyOptions = new CreateLobbyOptions{
             BucketId = "2",

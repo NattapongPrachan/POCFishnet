@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Epic.OnlineServices.Auth;
@@ -11,10 +10,12 @@ using UniRx;
 using TMPro;
 using QFSW.QC;
 using Epic.OnlineServices;
+using FishNet;
+using FishNet.Transporting.FishyEOSPlugin;
+using System.Linq;
+using System.Threading.Tasks;
 using System;
-using System.Data.Common;
-using Mono.CSharp;
-using Unity.VisualScripting;
+using FishNet.Plugins.FishyEOS.Util;
 public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin,IEOSOnConnectLogin
 {
     [SerializeField]GameObject _uiLobbyGameObject;
@@ -49,7 +50,7 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
         
     }
     private void Update() {
-        _lobby = _lobbyManager.GetCurrentLobby();
+       //_lobby = _lobbyManager.GetCurrentLobby();
     }
     [Command]
     void LobbyDetailUpdate()
@@ -83,7 +84,60 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
             _lobby = null;
         });
     }
-    
+    [Command]
+    public void StartGame()
+    {
+        var lobbyManager = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby();
+        var isOwner = _lobby.IsOwner(EOSManager.Instance.GetProductUserId());
+        if(isOwner)
+        {
+            _lobby = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby();
+            _lobby.Attributes.FirstOrDefault( lob => lob.Key == "GAMESTART").AsBool = true;
+            // var attributeKeys = new string[_lobby.Attributes.Count];
+            // var attributeValues = new string[_lobby.Attributes.Count];
+            // int index = 0;
+            // foreach (LobbyAttribute attribute in _lobby.Attributes)
+            // {
+            //     attributeKeys[index] = attribute?.Key;
+            //     attributeValues[index] =attribute?.ValueType.ToString();
+            // }
+            // attributeValues[Array.IndexOf(attributeKeys,"gameStart")] = "true";
+            
+
+            EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().ModifyLobby(_lobby,_=>{
+                
+            });
+            //fishyEOS.AuthConnectData.loginCredentialType = LobbyVariables.Instance.AuthData.loginCredentialType;
+            //fishyEOS.AuthConnectData.externalCredentialType = LobbyVariables.Instance.AuthData.externalCredentialType;
+            //fishyEOS.AuthConnectData.id = LobbyVariables.Instance.AuthData.id;
+            //fishyEOS.AuthConnectData.token = LobbyVariables.Instance.AuthData.token;
+            //fishyEOS.AuthConnectData.displayName =
+                // LobbyVariables.Instance.AuthData.loginCredentialType == LoginCredentialType.Developer
+                //     ? ""
+                //     : LobbyVariables.Instance.AuthData.displayName;
+            //fishyEOS.gameObject.SetActive(true);
+            // UILobbyManager.Instance.CloseLobby();
+            // networkManager.ServerManager.StartConnection();
+            // networkManager.ClientManager.StartConnection();
+        }
+    }
+    void StartServer()
+    {
+
+        var networkManager = InstanceFinder.NetworkManager;
+        var localUserId = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby().LobbyOwner;//LobbyVariables.Instance.ProductUserId;
+        var fishyEOS = networkManager.GetComponent<FishyEOS>();
+            fishyEOS.RemoteProductUserId = localUserId.ToString();
+        Debug.Log("StartServer isOwner "+_lobby.IsOwner(EOSManager.Instance.GetProductUserId()));
+        if(!_lobby.IsOwner(EOSManager.Instance.GetProductUserId()))
+        {
+            networkManager.ClientManager.StartConnection();
+        }else{
+            networkManager.ServerManager.StartConnection();
+            networkManager.ClientManager.StartConnection();
+        }
+        UILobbyManager.Instance.CloseLobby();
+    }
     void ClearContent()
     {
 
@@ -96,10 +150,6 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
             _playerRoomList.Add(Instantiate(_playerRoomPrefab,_contentTransform));
         }
     }
-    
-    
-
-    
     
     private void OnNotifyLobbyChange()
     {
@@ -117,6 +167,10 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
     {
         //when the current lobby data has been updated
         Debug.Log("UILobby OnNotifyLobbyUpdate");
+        _lobby = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby();
+        Debug.Log("attrivbute count "+_lobby.Attributes.Count);
+        
+        CheckGameStart();
         LobbyDetailUpdate();
         LobbyPlayerUpdate();
     }
@@ -189,7 +243,7 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
 
     private void OnNotifyJoinLobbyAccepted(ref JoinLobbyAcceptedCallbackInfo data)
     {
-       Debug.Log("OnNotifyJoinLobbyAccepted "+data.GetResultCode());
+        Debug.Log("OnNotifyJoinLobbyAccepted "+data.GetResultCode());
         Debug.Log("localuserid "+data.LocalUserId);
     }
     private void OnNotifyLobbyUpdateReceivedCallback(ref LobbyUpdateReceivedCallbackInfo data)
@@ -197,9 +251,22 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
         Debug.Log("OnNotifyLobbyUpdateReceivedCallback "+data.LobbyId);
         Debug.Log(data.LobbyId);
         Debug.Log(data.ClientData);
-        
-        
+        _lobby.InitFromLobbyHandle(_lobby.Id);
+        _lobby = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby();
+        Debug.Log("_lobby attribute count "+_lobby.Attributes.Count);
+        CheckGameStart();
     }
+
+    private void CheckGameStart()
+    {
+        LobbyAttribute gameStartAttribute = _lobby.Attributes.FirstOrDefault( lob => lob.Key.ToUpper() == "GAMESTART");
+        Debug.Log("gameStartAttribute "+gameStartAttribute);
+        if(gameStartAttribute.AsBool == true)
+        {
+            StartServer();
+        }
+    }
+
     private void OnLoginStatusChangeCallback(ref LoginStatusChangedCallbackInfo data)
     {
         Debug.Log("UILobby OnLoginStatusChangeCallback "+data.CurrentStatus);
