@@ -16,10 +16,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using FishNet.Plugins.FishyEOS.Util;
+using Mono.CSharp;
+using System.Xml.Linq;
+
 public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin,IEOSOnConnectLogin
 {
     [SerializeField]GameObject _uiLobbyGameObject;
-     [SerializeField]Transform _contentTransform;
+    [SerializeField]Transform _contentTransform;
     [SerializeField]PlayerRoomEC _playerRoomPrefab;
     [SerializeField]int _elementLimit = 25;
     [SerializeField]List<PlayerRoomEC> _playerRoomList;
@@ -30,10 +33,13 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
     LobbyInterface _lobbyInterface;
     EOSLobbyManager _lobbyManager;
     [SerializeField]Lobby _lobby;
-    ulong idNotifyLoginStatusChanged;
+    
+    List<LobbyAttribute> _attributes = new List<LobbyAttribute>();
+    //Attribute
+    
     private void Start()
     {
-        _lobbyManager = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>();
+        
         
         AddListener();
         CreatePoolElement();
@@ -46,7 +52,8 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
         this.ObserveEveryValueChanged(_ => _._lobby).Subscribe(_ =>{
             Debug.Log("Lobby observe update "+_.Members.Count);
         }).AddTo(this);
-       _lobbyManager.AddNotifyMemberUpdateReceived(OnNotifyMemberUpdateReceived);
+        //_lobbyManager = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>();
+        //_lobbyManager.AddNotifyMemberUpdateReceived(OnNotifyMemberUpdateReceived);
         
     }
     private void Update() {
@@ -92,42 +99,43 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
         if(isOwner)
         {
             _lobby = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby();
+            foreach (var item in _lobby.Attributes)
+            {
+                Debug.Log(item.Key + " : " + item);
+            }
             _lobby.Attributes.FirstOrDefault( lob => lob.Key == "GAMESTART").AsBool = true;
-            // var attributeKeys = new string[_lobby.Attributes.Count];
-            // var attributeValues = new string[_lobby.Attributes.Count];
-            // int index = 0;
-            // foreach (LobbyAttribute attribute in _lobby.Attributes)
-            // {
-            //     attributeKeys[index] = attribute?.Key;
-            //     attributeValues[index] =attribute?.ValueType.ToString();
-            // }
-            // attributeValues[Array.IndexOf(attributeKeys,"gameStart")] = "true";
-            
 
             EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().ModifyLobby(_lobby,_=>{
                 
             });
-            //fishyEOS.AuthConnectData.loginCredentialType = LobbyVariables.Instance.AuthData.loginCredentialType;
-            //fishyEOS.AuthConnectData.externalCredentialType = LobbyVariables.Instance.AuthData.externalCredentialType;
-            //fishyEOS.AuthConnectData.id = LobbyVariables.Instance.AuthData.id;
-            //fishyEOS.AuthConnectData.token = LobbyVariables.Instance.AuthData.token;
-            //fishyEOS.AuthConnectData.displayName =
-                // LobbyVariables.Instance.AuthData.loginCredentialType == LoginCredentialType.Developer
-                //     ? ""
-                //     : LobbyVariables.Instance.AuthData.displayName;
-            //fishyEOS.gameObject.SetActive(true);
-            // UILobbyManager.Instance.CloseLobby();
-            // networkManager.ServerManager.StartConnection();
-            // networkManager.ClientManager.StartConnection();
         }
+    }
+    [Command]
+    public void ChangeInt(int integer)
+    {
+        _lobby = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby();
+        Debug.Log("attrivute count "+_lobby.Attributes.Count);
+        foreach (var item in _lobby.Attributes)
+        {
+            Debug.Log(item.Key + " : " + item + "value : "+item.ValueType);
+        }
+        var value = _lobby.Attributes.FirstOrDefault(_ => _.Key == "INT").AsInt64;
+        Debug.Log("Attribute Value " + value.Value);
+        value = Convert.ToInt64(integer);
+
+        EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().ModifyLobby(_lobby, _ =>
+        {
+
+        });
     }
     void StartServer()
     {
 
         var networkManager = InstanceFinder.NetworkManager;
         var localUserId = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby().LobbyOwner;//LobbyVariables.Instance.ProductUserId;
-        var fishyEOS = networkManager.GetComponent<FishyEOS>();
-            fishyEOS.RemoteProductUserId = localUserId.ToString();
+        //var fishyEOS = networkManager.GetComponent<FishyEOS>();
+        //    fishyEOS.RemoteProductUserId = localUserId.ToString();
+        
         Debug.Log("StartServer isOwner "+_lobby.IsOwner(EOSManager.Instance.GetProductUserId()));
         if(!_lobby.IsOwner(EOSManager.Instance.GetProductUserId()))
         {
@@ -166,13 +174,14 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
     private void OnNotifyLobbyUpdate()
     {
         //when the current lobby data has been updated
-        Debug.Log("UILobby OnNotifyLobbyUpdate");
-        _lobby = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby();
-        Debug.Log("attrivbute count "+_lobby.Attributes.Count);
-        
-        CheckGameStart();
-        LobbyDetailUpdate();
-        LobbyPlayerUpdate();
+        //Debug.Log("UILobby OnNotifyLobbyUpdate");
+        //_lobby.InitFromLobbyHandle(_lobby.Id);
+        //_lobby = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby();
+        //Debug.Log("attrivbute count " + _lobby.Attributes.Count);
+
+        //CheckGameStart();
+        //LobbyDetailUpdate();
+        //LobbyPlayerUpdate();
     }
     private void OnNotifyMemberUpdateReceived(string LobbyId, ProductUserId MemberId)
     {
@@ -204,8 +213,12 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
     {
         Debug.Log("UILobby OnEnable");
     }
+    ulong idNotifyLoginStatusChanged;
+    ulong idNotifyLobbyUpdateReceived;
+    ulong idNotifyLobbyMemberStatusReceived;
     void AddListener()
     {
+        Debug.Log("AddListener");
         EOSManager.Instance.AddAuthLoginListener(this);
         EOSManager.Instance.AddAuthLogoutListener(this);
         EOSManager.Instance.AddConnectLoginListener(this);
@@ -213,19 +226,26 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
         EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyChange(OnNotifyLobbyChange);
         EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyUpdate(OnNotifyLobbyUpdate);
         EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyMemberUpdateReceived(OnNotifyMemberUpdateReceived);
-        
-        AddNotifyLoginStatusChangedOptions loginStatusOption = new AddNotifyLoginStatusChangedOptions();
+
+
         // AddNotifyJoinLobbyAcceptedOptions addNotifyJoinLobbyAcceptedOptions = new AddNotifyJoinLobbyAcceptedOptions();
-        AddNotifyLobbyUpdateReceivedOptions addNotifyLobbyUpdateReceivedOptions = new AddNotifyLobbyUpdateReceivedOptions();
-        AddNotifyLobbyMemberStatusReceivedOptions addNotifyLobbyMemberStatusReceivedOptions = new AddNotifyLobbyMemberStatusReceivedOptions();
+
+
         // AddNotifyRTCRoomConnectionChangedOptions addNotifyRTCRoomConnectionChangedOptions = new AddNotifyRTCRoomConnectionChangedOptions();
-        
-        EOSManager.Instance.GetEOSAuthInterface().AddNotifyLoginStatusChanged(ref loginStatusOption,null,OnLoginStatusChangeCallback);
-        EOSManager.Instance.GetEOSLobbyInterface().AddNotifyLobbyUpdateReceived(ref addNotifyLobbyUpdateReceivedOptions,null,OnNotifyLobbyUpdateReceivedCallback);
+
+
+        Epic.OnlineServices.Connect.AddNotifyLoginStatusChangedOptions loginStatusOption = new Epic.OnlineServices.Connect.AddNotifyLoginStatusChangedOptions();
+        idNotifyLoginStatusChanged = EOSManager.Instance.GetEOSConnectInterface().AddNotifyLoginStatusChanged(ref loginStatusOption, null,OnConnectLoginStatusChangeCallback);
+
+
         // EOSManager.Instance.GetEOSLobbyInterface().AddNotifyJoinLobbyAccepted(ref addNotifyJoinLobbyAcceptedOptions,null,OnNotifyJoinLobbyAccepted);
-        EOSManager.Instance.GetEOSLobbyInterface().AddNotifyLobbyMemberStatusReceived(ref addNotifyLobbyMemberStatusReceivedOptions,null,OnNotifyLobbyMemberStatusReceived);
+        AddNotifyLobbyMemberStatusReceivedOptions addNotifyLobbyMemberStatusReceivedOptions = new AddNotifyLobbyMemberStatusReceivedOptions();
+        idNotifyLobbyMemberStatusReceived = EOSManager.Instance.GetEOSLobbyInterface().AddNotifyLobbyMemberStatusReceived(ref addNotifyLobbyMemberStatusReceivedOptions,null,OnNotifyLobbyMemberStatusReceived);
         // EOSManager.Instance.GetEOSLobbyInterface().AddNotifyRTCRoomConnectionChanged(ref addNotifyRTCRoomConnectionChangedOptions,null,OnNotifyRTCRoomConnectionChanged);
-        
+
+        AddNotifyLobbyUpdateReceivedOptions addNotifyLobbyUpdateReceivedOptions = new AddNotifyLobbyUpdateReceivedOptions();
+        idNotifyLobbyUpdateReceived = EOSManager.Instance.GetEOSLobbyInterface().AddNotifyLobbyUpdateReceived(ref addNotifyLobbyUpdateReceivedOptions, null, OnNotifyLobbyUpdateReceivedCallback);
+
     }
 
     private void OnDisable() {
@@ -233,6 +253,8 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
         EOSManager.Instance.RemoveAuthLogoutListener(this);
         EOSManager.Instance.RemoveConnectLoginListener(this);
         EOSManager.Instance.GetEOSAuthInterface().RemoveNotifyLoginStatusChanged(idNotifyLoginStatusChanged);
+        EOSManager.Instance.GetEOSLobbyInterface().RemoveNotifyLobbyUpdateReceived(idNotifyLobbyUpdateReceived);
+        EOSManager.Instance.GetEOSLobbyInterface().RemoveNotifyLobbyMemberStatusReceived(idNotifyLobbyMemberStatusReceived);
     }
 
     private void OnUpdateLobby(ref UpdateLobbyCallbackInfo data)
@@ -250,26 +272,27 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
     {
         Debug.Log("OnNotifyLobbyUpdateReceivedCallback "+data.LobbyId);
         Debug.Log(data.LobbyId);
-        Debug.Log(data.ClientData);
         _lobby.InitFromLobbyHandle(_lobby.Id);
         _lobby = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby();
-        Debug.Log("_lobby attribute count "+_lobby.Attributes.Count);
+        _attributes = _lobby.Attributes;
         CheckGameStart();
     }
 
     private void CheckGameStart()
     {
         LobbyAttribute gameStartAttribute = _lobby.Attributes.FirstOrDefault( lob => lob.Key.ToUpper() == "GAMESTART");
-        Debug.Log("gameStartAttribute "+gameStartAttribute);
         if(gameStartAttribute.AsBool == true)
         {
             StartServer();
         }
     }
 
-    private void OnLoginStatusChangeCallback(ref LoginStatusChangedCallbackInfo data)
+    private void OnConnectLoginStatusChangeCallback(ref Epic.OnlineServices.Connect.LoginStatusChangedCallbackInfo data)
     {
-        Debug.Log("UILobby OnLoginStatusChangeCallback "+data.CurrentStatus);
+        if(data.CurrentStatus == LoginStatus.LoggedIn)
+        {
+            
+        }
        
     }
     private void OnNotifyRTCRoomConnectionChanged(ref RTCRoomConnectionChangedCallbackInfo data)
@@ -310,7 +333,7 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
     void UpdateLobby()
     {
         _lobby = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby();
-        _lobby.InitFromLobbyHandle(_lobby.Id);        
+        _lobby.InitFromLobbyHandle(_lobby.Id);
         LobbyDetailUpdate();
         LobbyPlayerUpdate();
     }

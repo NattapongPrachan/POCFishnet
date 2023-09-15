@@ -271,6 +271,7 @@ namespace PlayEveryWare.EpicOnlineServices.Samples
     /// <summary>
     /// Class represents all Lobby Attribute properties
     /// </summary>
+    [Serializable]
     public class LobbyAttribute
     {
         public LobbyAttributeVisibility Visibility = LobbyAttributeVisibility.Public;

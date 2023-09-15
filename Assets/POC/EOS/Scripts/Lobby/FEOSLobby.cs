@@ -34,24 +34,24 @@ public class FEOSLobby : SerializedMonoBehaviour
     }
     void OnEnable()
     {
-        EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyChange(OnNotifyLobbyChange);
-        EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyUpdate(OnNotifyLobbyUpdate);
-        EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyMemberUpdateReceived(OnNotifyMemberUpdateReceived);
+        //EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyChange(OnNotifyLobbyChange);
+        //EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyUpdate(OnNotifyLobbyUpdate);
+        //EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyMemberUpdateReceived(OnNotifyMemberUpdateReceived);
     }
 
     private void OnNotifyMemberUpdateReceived(string LobbyId, ProductUserId MemberId)
     {
-        Debug.Log("OnNotifyMemberUpdateReceived");
+       // Debug.Log("OnNotifyMemberUpdateReceived");
     }
 
     private void OnNotifyLobbyUpdate()
     {
-        Debug.Log("OnNotifyLobbyUpdate");
+        //Debug.Log("OnNotifyLobbyUpdate");
     }
 
     private void OnNotifyLobbyChange()
     {
-        Debug.Log("OnNotifyLobbyChange");
+       // Debug.Log("OnNotifyLobbyChange");
     }
 
     private void OnDisable()

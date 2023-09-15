@@ -36,6 +36,7 @@ using Epic.OnlineServices.UI;
 
 namespace PlayEveryWare.EpicOnlineServices.Samples
 {
+    [DefaultExecutionOrder(0)]
     public class EOSHostManager : MonoBehaviour, IEOSCoroutineOwner
     {
         void Awake()

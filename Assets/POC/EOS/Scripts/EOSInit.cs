@@ -268,6 +268,7 @@ public class EOSInit : SerializedMonoBehaviour,IEOSOnAuthLogin,IEOSOnAuthLogout,
     }
     private void OnConnectLoginStatusChangedCallback(ref Epic.OnlineServices.Connect.LoginStatusChangedCallbackInfo data)
     {
+        Debug.Log("OnConnectLoginStatusChangedCallback " + data);
         _connectClientData = data.ClientData;
         _productUserId = data.LocalUserId.ToString();
         _connectStatus = data.CurrentStatus;

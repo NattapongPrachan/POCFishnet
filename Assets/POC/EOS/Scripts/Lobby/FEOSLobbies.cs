@@ -56,14 +56,21 @@ public class FEOSLobbies : MonoBehaviour, IEOSOnAuthLogin, IEOSOnAuthLogout, IEO
         };
 
         var gameStartAttribute = new LobbyAttribute{
-            Key = "gameStart",
+            Key = "GAMESTART",
             AsBool = false,
             ValueType = AttributeType.Boolean
+        };
+        var gameIntAttribute = new LobbyAttribute
+        {
+            Key = "INT",
+            AsInt64 = 0,
+            ValueType = AttributeType.Int64
         };
 
         lobby.Attributes.Add(attribute);
         lobby.Attributes.Add(bucketAttribute);
         lobby.Attributes.Add(gameStartAttribute);
+        lobby.Attributes.Add(gameIntAttribute);
 
         var createLobbyOptions = new CreateLobbyOptions{
             BucketId = "2",
@@ -87,7 +94,22 @@ public class FEOSLobbies : MonoBehaviour, IEOSOnAuthLogin, IEOSOnAuthLogout, IEO
 
         
     }
+    void AddListener()
+    {
+        Epic.OnlineServices.Auth.AddNotifyLoginStatusChangedOptions loginStatusOption = new Epic.OnlineServices.Auth.AddNotifyLoginStatusChangedOptions
+        {
+        };
+        Epic.OnlineServices.Connect.AddNotifyLoginStatusChangedOptions connectLoginOption = new Epic.OnlineServices.Connect.AddNotifyLoginStatusChangedOptions
+        {
 
+        };
+        idNotifyLoginStatusChanged = EOSManager.Instance.GetEOSAuthInterface().AddNotifyLoginStatusChanged(ref loginStatusOption, null, OnLoginStatusChangeCallback);
+
+        EOSManager.Instance.GetEOSConnectInterface().AddNotifyLoginStatusChanged(ref connectLoginOption, null, OnConnectLoginStatusChangeCallback);
+        EOSManager.Instance.AddAuthLoginListener(this);
+        EOSManager.Instance.AddAuthLogoutListener(this);
+        EOSManager.Instance.AddConnectLoginListener(this);
+    }
 
 
     private void OnCreateLobby(ref CreateLobbyCallbackInfo data)
@@ -218,23 +240,11 @@ public class FEOSLobbies : MonoBehaviour, IEOSOnAuthLogin, IEOSOnAuthLogout, IEO
     }
     private void OnEnable()
     {
-        Epic.OnlineServices.Auth.AddNotifyLoginStatusChangedOptions loginStatusOption = new Epic.OnlineServices.Auth.AddNotifyLoginStatusChangedOptions
-        {
-        };
-        Epic.OnlineServices.Connect.AddNotifyLoginStatusChangedOptions connectLoginOption = new Epic.OnlineServices.Connect.AddNotifyLoginStatusChangedOptions
-        {
         
-        };
-        idNotifyLoginStatusChanged = EOSManager.Instance.GetEOSAuthInterface().AddNotifyLoginStatusChanged(ref loginStatusOption,null,OnLoginStatusChangeCallback);
-        
-        EOSManager.Instance.GetEOSConnectInterface().AddNotifyLoginStatusChanged(ref connectLoginOption,null,OnConnectLoginStatusChangeCallback);
-        EOSManager.Instance.AddAuthLoginListener(this);
-        EOSManager.Instance.AddAuthLogoutListener(this);
-        EOSManager.Instance.AddConnectLoginListener(this);
 
-        EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyChange(OnNotifyLobbyChange);
-        EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyUpdate(OnNotifyLobbyUpdate);
-        EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyMemberUpdateReceived(OnNotifyMemberUpdateReceived);
+        //EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyChange(OnNotifyLobbyChange);
+        //EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyUpdate(OnNotifyLobbyUpdate);
+        //EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyMemberUpdateReceived(OnNotifyMemberUpdateReceived);
     }
 
     private void OnNotifyMemberUpdateReceived(string LobbyId, ProductUserId MemberId)
@@ -256,6 +266,6 @@ public class FEOSLobbies : MonoBehaviour, IEOSOnAuthLogin, IEOSOnAuthLogout, IEO
         EOSManager.Instance.RemoveAuthLoginListener(this);
         EOSManager.Instance.RemoveAuthLogoutListener(this);
         EOSManager.Instance.RemoveConnectLoginListener(this);
-        EOSManager.Instance.GetEOSAuthInterface().RemoveNotifyLoginStatusChanged(idNotifyLoginStatusChanged);
+        //EOSManager.Instance.GetEOSAuthInterface().RemoveNotifyLoginStatusChanged(idNotifyLoginStatusChanged);
     }
 }
