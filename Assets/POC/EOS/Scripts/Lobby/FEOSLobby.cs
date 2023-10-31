@@ -11,6 +11,8 @@ using Epic.OnlineServices.Lobby;
 using System;
 using Epic.OnlineServices;
 using QFSW.QC;
+using FishNet.Plugins.FishyEOS.Util;
+
 public class FEOSLobby : SerializedMonoBehaviour
 {
     EOSLobbyManager _lobbyManager;
@@ -34,7 +36,7 @@ public class FEOSLobby : SerializedMonoBehaviour
     }
     void OnEnable()
     {
-        //EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyChange(OnNotifyLobbyChange);
+        EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyChange(OnNotifyLobbyChange);
         //EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyLobbyUpdate(OnNotifyLobbyUpdate);
         //EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().AddNotifyMemberUpdateReceived(OnNotifyMemberUpdateReceived);
     }
@@ -51,7 +53,7 @@ public class FEOSLobby : SerializedMonoBehaviour
 
     private void OnNotifyLobbyChange()
     {
-       // Debug.Log("OnNotifyLobbyChange");
+        Debug.Log("OnNotifyLobbyChange");
     }
 
     private void OnDisable()

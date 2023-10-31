@@ -14,12 +14,10 @@ using QFSW.QC;
 using Sirenix.OdinInspector;
 using UniRx;
 using UnityEngine;
+using FishNet.Plugins.FishyEOS.Util;
 
 public class FEOSLobbies : MonoBehaviour, IEOSOnAuthLogin, IEOSOnAuthLogout, IEOSOnConnectLogin
 {
-
-    
-
     public static Subject<Lobby> OnLobbyJoined = new Subject<Lobby>();
     public static Subject<Dictionary<Lobby,LobbyDetails>> OnLobbiesUpdated = new Subject<Dictionary<Lobby, LobbyDetails>>();
 
@@ -77,13 +75,18 @@ public class FEOSLobbies : MonoBehaviour, IEOSOnAuthLogin, IEOSOnAuthLogout, IEO
             MaxLobbyMembers = 8,
             AllowInvites = true,
             EnableJoinById = true,
-            LocalUserId = EOSManager.Instance.GetProductUserId(),
+            LocalUserId = EOS.LocalProductUserId,
             PresenceEnabled = true,
         };
+
+        //EOS.GetPlatformInterface().GetLobbyInterface().CreateLobby(ref createLobbyOptions, null, OnCreateLobby);
+
+        EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().CreateLobby(lobby, OnCreateLobbyComplete);
+
         //EOSManager.Instance.GetEOSLobbyInterface().CreateLobby(ref createLobbyOptions,null,OnCreateLobby);
 
-        Debug.Log("EOSLobby "+EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>()._Dirty);
-        EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().CreateLobby(lobby,OnCreateLobbyComplete);
+        //Debug.Log("EOSLobby "+EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>()._Dirty);
+
         // CreateLobbyOptions createLobbyOptions = new CreateLobbyOptions
         // {
         //     BucketId = "1",
@@ -92,7 +95,7 @@ public class FEOSLobbies : MonoBehaviour, IEOSOnAuthLogin, IEOSOnAuthLogout, IEO
         // }
         //  EOSManager.Instance.GetEOSLobbyInterface().CreateLobby()
 
-        
+
     }
     void AddListener()
     {
@@ -115,7 +118,7 @@ public class FEOSLobbies : MonoBehaviour, IEOSOnAuthLogin, IEOSOnAuthLogout, IEO
     private void OnCreateLobby(ref CreateLobbyCallbackInfo data)
     {
         Debug.Log("OnCreateLobby "+data.ResultCode);
-        Debug.Log("EOSManager.Instance.GetProductUserId() "+EOSManager.Instance.GetProductUserId());
+       // Debug.Log("EOSManager.Instance.GetProductUserId() "+EOSManager.Instance.GetProductUserId());
 
         // JoinLobbyByIdOptions joinLobbyByIdOptions = new JoinLobbyByIdOptions{
         //     LobbyId = data.LobbyId,
@@ -137,9 +140,9 @@ public class FEOSLobbies : MonoBehaviour, IEOSOnAuthLogin, IEOSOnAuthLogout, IEO
         currentLobby.InitFromLobbyHandle(currentLobby.Id);
         currentLobby.IsValid(); 
         Debug.Log("lobby  "+currentLobby.IsValid());
-        // _joinLobby = lobby;
-        // _lobbyAttribute = _joinLobby.Attributes;
-        // OnLobbyJoined?.OnNext(lobby);
+        _joinLobby = currentLobby;
+        _lobbyAttribute = _joinLobby.Attributes;
+        OnLobbyJoined?.OnNext(currentLobby);
     }
 
     [Command]

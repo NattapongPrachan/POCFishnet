@@ -9,6 +9,7 @@ using PlayEveryWare.EpicOnlineServices.Samples;
 using Epic.OnlineServices.Connect;
 using QFSW.QC;
 using QFSW.QC.Containers;
+using UnityEngine.UI;
 
 public class EOSInit : SerializedMonoBehaviour,IEOSOnAuthLogin,IEOSOnAuthLogout,IEOSOnConnectLogin
 {
@@ -38,6 +39,7 @@ public class EOSInit : SerializedMonoBehaviour,IEOSOnAuthLogin,IEOSOnAuthLogout,
     [SerializeField]object _connectClientData;
     [SerializeField]string _productUserId;
     [SerializeField]LoginStatus _connectStatus;
+    [SerializeField] Button b_play;
     ContinuanceToken _continuanceToken;
     /// <summary>
     /// LocalUserId	The ID of the lobby member requesting the removal. This must be the lobby owner.
@@ -47,44 +49,10 @@ public class EOSInit : SerializedMonoBehaviour,IEOSOnAuthLogin,IEOSOnAuthLogout,
     /// </summary>
     void Start()
     {
-        var authInterface = EOSManager.Instance.GetEOSAuthInterface();
-        var statusInterface = EOSManager.Instance.GetEOSStatsInterface();
-        var sessionInterface = EOSManager.Instance.GetEOSSessionsInterface();
-        var lobbyInterface = EOSManager.Instance.GetEOSLobbyInterface();
-        var connectInterface = EOSManager.Instance.GetEOSConnectInterface();
         AddListener();
-        // Epic.OnlineServices.Auth.LoginOptions loginOptions = new Epic.OnlineServices.Auth.LoginOptions
-        // {
-        //      Credentials = new Epic.OnlineServices.Auth.Credentials
-        //      {
-        //          Id = port,
-        //           Token = credentialId,
-        //            Type = credentialType,
-        //             ExternalType = externalCredentialType
-        //      }
-        // };
-        
-        // Epic.OnlineServices.Auth.LoginOptions loginOptions = new Epic.OnlineServices.Auth.LoginOptions
-        // {
-        //      Credentials = new Epic.OnlineServices.Auth.Credentials
-        //      {
-        //         Type = LoginCredentialType.DeviceCode,
-        //         ExternalType = ExternalCredentialType.DeviceidAccessToken
-        //      }
-        // };
-        // EOSManager.Instance.StartLoginWithLoginOptions(loginOptions,OnAuthLoginCallback);
-
-
-        ///EOSManager.Instance.StartLoginWithLoginTypeAndToken(credentialType,port,credentialId,OnEOSLoginCallback);
-        //EOSManager.Instance.GetEOSAuthInterface().Login(ref loginOptions,null,OnAuthLoginCallback);
-        
-        //EOSManager.Instance.GetEOSConnectInterface().Login(ref connectLoginOption,null,OnConnectLoginCallback);
-        //EOSManager.Instance.StartConnectLoginWithOptions(Epic.OnlineServices.ExternalCredentialType.DeviceidAccessToken)
-
-       // ConnectLogin();
     }
     [Command]
-    void AuthenLogin()
+    public void AuthenLogin()
     {
         EOSManager.Instance.StartLoginWithLoginTypeAndToken(credentialType,port,credentialId,OnAuthLoginCallback);
     }
@@ -96,56 +64,27 @@ public class EOSInit : SerializedMonoBehaviour,IEOSOnAuthLogin,IEOSOnAuthLogout,
         Debug.Log("LocalUserId "+data.LocalUserId.ToString());
         Debug.Log("SelectedAccountId "+data.SelectedAccountId.ToString());
         Debug.Log("PinGrantInfo "+data.PinGrantInfo);
-        //_epicAccountId = data.LocalUserId;
-        //_continuanceToken = data.ContinuanceToken;
-        //Debug.Log("_continuanceToken "+_continuanceToken);
-
-        // EOSManager.Instance.CreateConnectUserWithContinuanceToken(data.ContinuanceToken, (Epic.OnlineServices.Connect.CreateUserCallbackInfo createUserCallbackInfo) =>
-        //         {
-        //             print("Creating new connect user "+createUserCallbackInfo.ResultCode);
-        //             if (createUserCallbackInfo.ResultCode == Result.Success)
-        //             {
-        //                 //ConfigureUIForLogout();
-        //             }
-        //             else
-        //             {
-        //                 //ConfigureUIForLogin();
-        //             }
-        //         });
-       // EOSManager.Instance.GetEOSAuthInterface().GetSelectedAccountId(data.LocalUserId,out _epicAccountId);
     }
     [Command]
-    void CreateUser()
+    public void CreateUser()
     {
         CreateUserOptions createUserOptions = new CreateUserOptions{
              ContinuanceToken = _continuanceToken
         };
         
         EOSManager.Instance.GetEOSConnectInterface().CreateUser(ref createUserOptions,null,OnCreateUser);
-        //EOSManager.Instance.GetEOSConnectInterface().CreateDeviceId(ref createDeviceIdOptions,null,OnCreateDeviceID);
     }
 
 
     [Command]
-    void ConnectLoginWithEpicId()
+    public void ConnectLoginWithEpicId()
     {
         
         EOSManager.Instance.StartConnectLoginWithEpicAccount(EOSManager.Instance.GetLocalUserId(),OnConnectLogin);
     }
     [Command]
-    void ConnectLoginWithOption()
-    {
-        // CopyUserAuthTokenOptions tokenOptions = new CopyUserAuthTokenOptions();
-        // EOSManager.Instance.GetEOSAuthInterface().CopyUserAuthToken(ref tokenOptions,_epicAccountId,out Token? token);
-        
-        // var loginOptions = new Epic.OnlineServices.Connect.LoginOptions() {
-        //     Credentials = new Epic.OnlineServices.Connect.Credentials() {
-        //         Type = externalCredentialType,
-        //         Token = token.Value.AccessToken
-        //     }
-        // };
-        // EOSManager.Instance.StartConnectLoginWithOptions(loginOptions,OnConnectLogin);
-        
+    public void ConnectLoginWithOption()
+    {  
         CreateUserOptions createUserOptions = new CreateUserOptions{
              ContinuanceToken = _continuanceToken
         };
@@ -167,25 +106,46 @@ public class EOSInit : SerializedMonoBehaviour,IEOSOnAuthLogin,IEOSOnAuthLogout,
         EOSManager.Instance.StartConnectLoginWithOptions(loginOptions,OnConnectWithCreate);
     }
     
+
     [Command]
-    void CreateDeviceId()
+    public void ConnectLoginWithDeviceId()
     {
-        CreateDeviceIdOptions createDeviceIdOptions = new CreateDeviceIdOptions{
+        EOSManager.Instance.StartConnectLoginWithDeviceToken(displayName, result => {
+
+            Debug.Log("OnConnectDeviceId " + result.ResultCode);
+            switch (result.ResultCode)
+            {
+                case Result.NotFound:
+                    CreateDeviceId();
+                break;
+                case Result.Success:
+                   // b_play.gameObject.SetActive(true);
+                    break;
+            }
+        });
+    }
+
+    [Command]
+    public void CreateDeviceId()
+    {
+        CreateDeviceIdOptions createDeviceIdOptions = new CreateDeviceIdOptions
+        {
             DeviceModel = SystemInfo.deviceModel
         };
-        EOSManager.Instance.GetEOSConnectInterface().CreateDeviceId(ref createDeviceIdOptions,null,OnCreateDeviceId);
+        EOSManager.Instance.GetEOSConnectInterface().CreateDeviceId(ref createDeviceIdOptions, null, OnCreateDeviceId);
     }
 
     private void OnCreateDeviceId(ref CreateDeviceIdCallbackInfo data)
     {
-        Debug.Log("OnCreateDeviceId "+data.ResultCode);
+        Debug.Log("OnCreateDeviceId " + data.ResultCode);
+        switch(data.ResultCode)
+        {
+            case Result.Success:
+                ConnectLoginWithDeviceId();
+            break;
+        }
     }
 
-    [Command]
-    void ConnectLoginWithDeviceId()
-    {
-        EOSManager.Instance.StartConnectLoginWithDeviceToken(displayName,OnConnectLogin);
-    }
     private void OnEOSLoginCallback(Epic.OnlineServices.Auth.LoginCallbackInfo loginCallbackInfo)
     {
         EOSManager.Instance.StartConnectLoginWithDeviceToken(displayName,OnConnectLogin);
@@ -204,18 +164,16 @@ public class EOSInit : SerializedMonoBehaviour,IEOSOnAuthLogin,IEOSOnAuthLogout,
         {
             case Result.InvalidUser :
                 CreateUser();
-            break; 
+                break;
+            case Result.AccessDenied:
+                CreateUser();
+                break; 
         }
     }
     
     
 
-    private void OnCreateDeviceID(ref CreateDeviceIdCallbackInfo data)
-    {
-        Debug.Log("OnCreateDeviceID "+data.ResultCode);
-        Debug.Log(data.ClientData.ToString());
-
-    }
+    
 
     void AddListener()
     {

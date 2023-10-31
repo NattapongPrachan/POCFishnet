@@ -36,6 +36,10 @@ public class CharacterLocalNB : NetworkObjectBehaviour
             var camera = Instantiate(Resources.Load<GameObject>("CameraObjectBehaviour")).GetComponent<CameraControllerOB>();
             camera.SetupCamera(CameraMode.ThirdPerson, LokiBehaviour.GetOB<CharacterLocalOB>().CameraRoot, LokiBehaviour.GetOB<CharacterLocalOB>().CameraRoot);
             LokiBehaviour.AssignObjectBehaviour(camera);
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                Instantiate(playerInput.MobileJoyStick);
+            }
         }
     }
     public override void OnNetworkObjectBehaviourAdded(NetworkObjectBehaviour networkObjectBehaviour)

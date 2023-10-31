@@ -18,6 +18,7 @@ using System;
 using FishNet.Plugins.FishyEOS.Util;
 using Mono.CSharp;
 using System.Xml.Linq;
+using FishNet.Plugins.FishyEOS.Util.Coroutines;
 
 public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin,IEOSOnConnectLogin
 {
@@ -128,16 +129,18 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
 
         });
     }
+    bool isStart = false;
     void StartServer()
     {
 
         var networkManager = InstanceFinder.NetworkManager;
         var localUserId = EOSManager.Instance.GetOrCreateManager<EOSLobbyManager>().GetCurrentLobby().LobbyOwner;//LobbyVariables.Instance.ProductUserId;
-        //var fishyEOS = networkManager.GetComponent<FishyEOS>();
-        //    fishyEOS.RemoteProductUserId = localUserId.ToString();
+        var fishyEOS = networkManager.GetComponent<FishyEOS>();
+        fishyEOS.Initialize(networkManager, 0);
         
-        Debug.Log("StartServer isOwner "+_lobby.IsOwner(EOSManager.Instance.GetProductUserId()));
-        if(!_lobby.IsOwner(EOSManager.Instance.GetProductUserId()))
+        fishyEOS.RemoteProductUserId = localUserId.ToString();
+        if (isStart) return;
+        if (!_lobby.IsOwner(EOSManager.Instance.GetProductUserId()))
         {
             networkManager.ClientManager.StartConnection();
         }else{
@@ -145,6 +148,7 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
             networkManager.ClientManager.StartConnection();
         }
         UILobbyManager.Instance.CloseLobby();
+        isStart = true;
     }
     void ClearContent()
     {
@@ -218,7 +222,7 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
     ulong idNotifyLobbyMemberStatusReceived;
     void AddListener()
     {
-        Debug.Log("AddListener");
+        Debug.Log("AddListener*********************************");
         EOSManager.Instance.AddAuthLoginListener(this);
         EOSManager.Instance.AddAuthLogoutListener(this);
         EOSManager.Instance.AddConnectLoginListener(this);
@@ -244,7 +248,7 @@ public class UILobby : SerializedMonoBehaviour,IEOSOnAuthLogout, IEOSOnAuthLogin
         // EOSManager.Instance.GetEOSLobbyInterface().AddNotifyRTCRoomConnectionChanged(ref addNotifyRTCRoomConnectionChangedOptions,null,OnNotifyRTCRoomConnectionChanged);
 
         AddNotifyLobbyUpdateReceivedOptions addNotifyLobbyUpdateReceivedOptions = new AddNotifyLobbyUpdateReceivedOptions();
-        idNotifyLobbyUpdateReceived = EOSManager.Instance.GetEOSLobbyInterface().AddNotifyLobbyUpdateReceived(ref addNotifyLobbyUpdateReceivedOptions, null, OnNotifyLobbyUpdateReceivedCallback);
+        idNotifyLobbyUpdateReceived = EOS.GetPlatformInterface().GetLobbyInterface().AddNotifyLobbyUpdateReceived(ref addNotifyLobbyUpdateReceivedOptions, null, OnNotifyLobbyUpdateReceivedCallback);
 
     }
 

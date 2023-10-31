@@ -13,15 +13,36 @@ namespace Grandora.GameInput
 {
     public class PlayerInputSystem : InputObject<PlayerInputAction>
     {
+        [SerializeField] GameObject _mobileJoyStick;
+        public GameObject MobileJoyStick => _mobileJoyStick;
         public ReactiveProperty<Vector2> movement = new ReactiveProperty<Vector2>(Vector2.zero);
         public ReactiveProperty<Vector2> mouseLook = new ReactiveProperty<Vector2>(Vector2.zero);
+        public override void OnCreate()
+        {
+            base.OnCreate();
+           
+        }
         public override void AddInput()
         {
             inputActionAsset = input.asset; // จำเป็นต้องมี
             input.Player.Movement.performed += OnMove;
             input.Player.Movement.canceled += OnMove;
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                input.PlayerGamePad.Look.performed += OnMouseLook;
+                input.PlayerGamePad.Look.canceled += OnMouseLook;
+            }
+            else
+            {
+                input.Player.MouseLook.performed += OnMouseLook;
+                input.Player.MouseLook.canceled += OnMouseLook;
+            }
+            
+            input.PlayerGamePad.Movement.performed += OnMove;
+            input.PlayerGamePad.Movement.canceled += OnMove;
 
-            input.Player.MouseLook.performed += OnMouseLook;
+            
+
         }
 
         private void OnMouseLook(InputAction.CallbackContext context)

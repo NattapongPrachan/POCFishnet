@@ -87,7 +87,7 @@
                     "path": "<Pointer>/delta",
                     "interactions": "",
                     "processors": "InvertVector2(invertX=false),ScaleVector2(x=0.05,y=0.05)",
-                    "groups": "Gamepad;Mouse",
+                    "groups": "Mouse",
                     "action": "MouseLook",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -515,9 +515,9 @@
                 {
                     "name": "Look",
                     "type": "Value",
-                    "id": "e6fd0c81-eac3-436c-bb97-7d47256c432e",
+                    "id": "642ed2a3-8683-4c1e-89a9-f68795c75554",
                     "expectedControlType": "Vector2",
-                    "processors": "",
+                    "processors": "StickDeadzone",
                     "interactions": "",
                     "initialStateCheck": true
                 }
@@ -536,7 +536,7 @@
                 },
                 {
                     "name": "",
-                    "id": "deb60a4e-f8e6-45b9-b230-ea2ee7550dbf",
+                    "id": "118f6388-ba52-4683-a320-f32d145f4352",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
                     "processors": "",

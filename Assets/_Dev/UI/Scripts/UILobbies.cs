@@ -9,6 +9,7 @@ using PlayEveryWare.EpicOnlineServices.Samples;
 using PlayEveryWare.EpicOnlineServices;
 using Epic.OnlineServices.Lobby;
 using Epic.OnlineServices;
+using TMPro;
 
 [System.Serializable]
 public class JoinLobbyEvent : UnityEvent<Lobby>
@@ -16,10 +17,14 @@ public class JoinLobbyEvent : UnityEvent<Lobby>
 }
 public class UILobbies : SerializedMonoBehaviour
 {
+    [SerializeField] FEOSLobbies _feosLobbies;
     [SerializeField]GameObject _uiLobbies;
     [SerializeField]Transform _contentTransform;
     [SerializeField]LobbyEC _lobbiesElementPrefab;
     [SerializeField]int _lobbiesShowLimit = 25;
+
+    [Header("Create&Search")]
+    [SerializeField] TMP_InputField _inputBucketId;
     
     [SerializeField]List<LobbyEC> _lobbies;
     public JoinLobbyEvent joinLobbyEvent;
@@ -113,5 +118,16 @@ public class UILobbies : SerializedMonoBehaviour
         
         };
         EOSManager.Instance.GetEOSConnectInterface().AddNotifyLoginStatusChanged(ref connectLoginOption,null,OnConnectLoginStatusChangeCallback);
+    }
+
+    public void SearchLobbyByBucketId()
+    {
+        if (string.IsNullOrEmpty(_inputBucketId.text)) return;
+        _feosLobbies.SearchLobbyByAttribute(_inputBucketId.text);
+    }
+    public void CreateLobbyBuBucketId()
+    {
+        if (string.IsNullOrEmpty(_inputBucketId.text)) return;
+        _feosLobbies.CreateLobby(_inputBucketId.text);
     }
 }

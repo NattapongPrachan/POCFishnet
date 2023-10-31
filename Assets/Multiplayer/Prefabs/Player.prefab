@@ -180,6 +180,8 @@ MonoBehaviour:
       Data: 
   AutoRegisterUpdate: 1
   autoAddInput: 1
+  _mobileJoyStick: {fileID: 6107613228273828297, guid: 182275b9a9bdacf41b63c43c561196d6,
+    type: 3}
   movement:
     value: {x: 0, y: 0}
   mouseLook:

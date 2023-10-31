@@ -17,12 +17,10 @@ namespace Grandora.Bifrost
         public override void OnCreate()
         {
             base.OnCreate();
-            Debug.Log("SpawnerBB OnCreate");
             Observable.Interval(TimeSpan.FromSeconds(timeSpawn)).Subscribe(_=>Spawn()).AddTo(this);
         }
         void Spawn()
         {
-            Debug.Log("Spawn");
             var go = Instantiate(objectSpawn);
             var randomPosition = UnityEngine.Random.insideUnitCircle * _radius;
             go.transform.position = new Vector3(randomPosition.x, 10, randomPosition.y);
